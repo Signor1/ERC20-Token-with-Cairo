@@ -150,15 +150,15 @@ mod ERC20 {
         fn _transfer(
             ref self: ContractState, from: ContractAddress, to: ContractAddress, value: u256
         ) -> bool {
-            let address_zero: ContractAddress = ContractAddress::zero();
-            assert(from != address_zero);
-            assert(to != address_zero);
-            assert(value > 0);
-            assert(self.balances.read(from) >= value);
+            let address_zero: ContractAddress = constract_address_const::<0>();
+            assert(from != address_zero, 'From address is zero');
+            assert(to != address_zero, 'To address is zero');
+            assert(value > 0, 'Transfer value must be greater than zero');
+            assert(self.balances.read(from) >= value, 'Insufficient balance');
 
             self.balances.write(from, self.balances.read(from) - value);
             self.balances.write(to, self.balances.read(to) + value);
-            self.emit(Transfer { from: from, to: to, value: value, });
+            self.emit(Transfer { from, to, value });
             true
         }
     }
