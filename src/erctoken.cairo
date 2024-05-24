@@ -24,7 +24,8 @@ trait IERC20<TContractState> {
 mod ERC20 {
     use core::starknet::event::EventEmitter;
     use super::IERC20;
-    use starknet::{ContractAddress, constract_address_const, get_caller_address};
+    //renamed the typo error, from `constract_address_const` to `contract_address_const`
+    use starknet::{ContractAddress, contract_address_const, get_caller_address};
 
     //added the storage definition
     #[storage]
@@ -46,8 +47,18 @@ mod ERC20 {
     }
 
     // Events
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        Transfer: Transfer,
+        Approval: Approval,
+        Mint: Mint,
+        Burn: Burn,
+    }
+
     #[derive(Drop, starknet::Event)]
     struct Transfer {
+        #[key]
         from: ContractAddress,
         to: ContractAddress,
         value: u256,
@@ -55,6 +66,7 @@ mod ERC20 {
 
     #[derive(Drop, starknet::Event)]
     struct Approval {
+        #[key]
         owner: ContractAddress,
         spender: ContractAddress,
         value: u256,
@@ -62,12 +74,14 @@ mod ERC20 {
 
     #[derive(Drop, starknet::Event)]
     struct Mint {
+        #[key]
         to: ContractAddress,
         value: u256,
     }
 
     #[derive(Drop, starknet::Event)]
     struct Burn {
+        #[key]
         from: ContractAddress,
         value: u256,
     }
@@ -150,10 +164,10 @@ mod ERC20 {
         fn _transfer(
             ref self: ContractState, from: ContractAddress, to: ContractAddress, value: u256
         ) -> bool {
-            let address_zero: ContractAddress = constract_address_const::<0>();
+            let address_zero: ContractAddress = contract_address_const::<0>();
             assert(from != address_zero, 'From address is zero');
             assert(to != address_zero, 'To address is zero');
-            assert(value > 0, 'Transfer value must be greater than zero');
+            assert(value > 0, 'Value must be greater than zero');
             assert(self.balances.read(from) >= value, 'Insufficient balance');
 
             self.balances.write(from, self.balances.read(from) - value);
